@@ -1,13 +1,10 @@
 import * as SQLite from 'expo-sqlite';
 import { Platform } from 'react-native';
 
-// Verificar si estamos en una plataforma compatible
 const isCompatiblePlatform = Platform.OS !== 'web';
-
 let db = null;
 
 if (isCompatiblePlatform) {
-  // Nueva sintaxis para expo-sqlite
   db = SQLite.openDatabaseSync('uleamapp.db');
 }
 
@@ -20,18 +17,45 @@ export const initDB = () => {
     }
 
     try {
-      // Nueva sintaxis síncrona
+      // Eliminar tabla de prueba anterior
+      db.execSync('DROP TABLE IF EXISTS test_table;');
+
+      // Tabla para STT - Conversión de voz a texto
       db.execSync(`
-        CREATE TABLE IF NOT EXISTS test_table (
+        CREATE TABLE IF NOT EXISTS transcripciones (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          texto_transcrito TEXT NOT NULL,
+          duracion_audio REAL,
+          precision_ia REAL,
+          fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
         );
       `);
-      console.log('Base de datos inicializada correctamente');
+
+      // Tabla para notificaciones visuales
+      db.execSync(`
+        CREATE TABLE IF NOT EXISTS notificaciones (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          mensaje TEXT NOT NULL,
+          tipo TEXT DEFAULT 'sistema',
+          leida BOOLEAN DEFAULT 0,
+          fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      // Tabla para adaptación de audio personalizada
+      db.execSync(`
+        CREATE TABLE IF NOT EXISTS configuraciones (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          clave TEXT UNIQUE NOT NULL,
+          valor TEXT NOT NULL,
+          fecha_modificacion DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      console.log('Base de datos configurada: STT, notificaciones visuales y adaptación de audio');
       resolve();
     } catch (error) {
-      console.log('Error al crear tabla:', error);
+      console.log('Error al crear esquema:', error);
       reject(error);
     }
   });
