@@ -116,3 +116,20 @@ export const obtenerConfiguracion = (clave) => {
     return null;
   }
 };
+
+// ========== OPERACIONES DE ADMINISTRACIÓN ==========
+
+export const limpiarBaseDatos = () => {
+  if (!isCompatiblePlatform || !db) return false;
+  
+  try {
+    db.runSync('DELETE FROM transcripciones');
+    db.runSync('DELETE FROM notificaciones');
+    db.runSync('DELETE FROM configuraciones');
+    console.log('Base de datos limpiada correctamente');
+    return true;
+  } catch (error) {
+    console.log('Error al limpiar base de datos:', error);
+    return false;
+  }
+};
