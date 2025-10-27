@@ -1,34 +1,70 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>ULEAM App Inclusiva</Text>
-      <Text style={styles.subtitle}>Comunicación accesible para todos</Text>
-
-      <TouchableOpacity 
-        style={styles.mainButton}
-        onPress={() => navigation.navigate('Transcription')}
+      <LinearGradient
+        colors={['#1e88e5', '#1565c0']}
+        style={styles.header}
       >
-        <Text style={styles.mainButtonText}>🎤 Iniciar Transcripción</Text>
-      </TouchableOpacity>
-
-      <View style={styles.secondaryButtons}>
-        <TouchableOpacity 
-          style={styles.secondaryButton}
-          onPress={() => navigation.navigate('History')}
+        <Animatable.Text 
+          animation="fadeInDown" 
+          duration={800}
+          style={styles.title}
         >
-          <Text style={styles.secondaryButtonText}>📝 Historial</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.secondaryButton}
-          onPress={() => navigation.navigate('Settings')}
+          ULEAM App Inclusiva
+        </Animatable.Text>
+        <Animatable.Text 
+          animation="fadeInDown" 
+          delay={200}
+          duration={800}
+          style={styles.subtitle}
         >
-          <Text style={styles.secondaryButtonText}>⚙️ Configuración</Text>
-        </TouchableOpacity>
+          Transcripción de Voz a Texto
+        </Animatable.Text>
+      </LinearGradient>
+
+      <View style={styles.centerContent}>
+        <Animatable.View
+          animation="pulse"
+          easing="ease-out"
+          iterationCount="infinite"
+          duration={2000}
+        >
+          <TouchableOpacity
+            style={styles.mainButtonShadow}
+            onPress={() => navigation.navigate('Transcription')}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#1e88e5', '#1565c0']}
+              style={styles.mainButton}
+            >
+              <MaterialCommunityIcons name="microphone" size={80} color="#fff" />
+              <Text style={styles.buttonText}>Iniciar Transcripción</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animatable.View>
       </View>
+
+      <Animatable.View 
+        animation="fadeInUp" 
+        delay={400}
+        duration={800}
+        style={styles.footer}
+      >
+        <MaterialCommunityIcons name="school" size={20} color="#666" />
+        <Text style={styles.footerText}>
+          Sistema de transcripción con IA
+        </Text>
+        <Text style={styles.footerSubtext}>
+          Powered by AssemblyAI
+        </Text>
+      </Animatable.View>
     </View>
   );
 }
@@ -36,55 +72,61 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    padding: 30,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-    textAlign: 'center',
+    color: '#fff',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 40,
-    textAlign: 'center',
+    color: '#e3f2fd',
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  mainButtonShadow: {
+    borderRadius: 110,
+    shadowColor: '#1e88e5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   mainButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 20,
-    paddingHorizontal: 40,
-    borderRadius: 12,
-    marginBottom: 30,
-    width: '80%',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  mainButtonText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  secondaryButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
-    gap: 15,
-  },
-  secondaryButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    flex: 1,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: '#333',
-    fontSize: 16,
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
     fontWeight: '600',
+    marginTop: 10,
+  },
+  footer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  footerSubtext: {
+    fontSize: 12,
+    color: '#999',
   },
 });

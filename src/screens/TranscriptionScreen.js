@@ -4,6 +4,9 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system/legacy';
 import { guardarTranscripcion, crearNotificacion } from '../database/operations';
 import { ASSEMBLYAI_API_KEY } from '@env';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 
 const ASSEMBLYAI_API_URL = 'https://api.assemblyai.com/v2';
 
@@ -124,14 +127,6 @@ export default function TranscriptionScreen({ navigation }) {
         const id = guardarTranscripcion(textoTranscrito, duracion, precision);
         if (id) {
           crearNotificacion('Transcripción completada con AssemblyAI', 'transcripcion');
-          Alert.alert(
-            'Transcripción exitosa',
-            'La transcripción se ha guardado correctamente',
-            [
-              { text: 'Ver historial', onPress: () => navigation.navigate('History') },
-              { text: 'Nueva transcripción', onPress: () => setTranscripcion('') }
-            ]
-          );
         }
       } else {
         throw new Error(`Transcripción falló: ${transcriptResult.status}`);
@@ -184,22 +179,38 @@ export default function TranscriptionScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>🎤 Transcripción con IA</Text>
-        <Text style={styles.modeText}>🇪🇸 Modelo: AssemblyAI Spanish</Text>
-      </View>
+      <LinearGradient
+        colors={['#1e88e5', '#1565c0']}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <MaterialCommunityIcons name="waveform" size={24} color="#fff" style={styles.headerIcon} />
+          <Text style={styles.headerText}>Transcripción con IA</Text>
+        </View>
+        <Text style={styles.modeText}>Modelo: AssemblyAI Spanish</Text>
+      </LinearGradient>
 
       <View style={styles.content}>
         <TouchableOpacity
-          style={[styles.micButton, isRecording && styles.micButtonActive]}
+          style={styles.micButtonShadow}
           onPress={toggleRecording}
           disabled={isProcessing}
+          activeOpacity={0.8}
         >
-          {isProcessing ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : (
-            <Text style={styles.micIcon}>🎤</Text>
-          )}
+          <LinearGradient
+            colors={isRecording ? ['#e53935', '#c62828'] : ['#1e88e5', '#1565c0']}
+            style={styles.micButton}
+          >
+            {isProcessing ? (
+              <ActivityIndicator size="large" color="#fff" />
+            ) : (
+              <MaterialCommunityIcons 
+                name={isRecording ? "stop-circle" : "microphone"} 
+                size={70} 
+                color="#fff" 
+              />
+            )}
+          </LinearGradient>
         </TouchableOpacity>
 
         <Text style={styles.status}>
@@ -210,24 +221,39 @@ export default function TranscriptionScreen({ navigation }) {
             : 'Toca el micrófono para grabar'}
         </Text>
 
-        <ScrollView style={styles.transcriptionContainer}>
-          {transcripcion ? (
-            <Text style={styles.transcriptionText}>{transcripcion}</Text>
-          ) : (
-            <Text style={styles.placeholderText}>
-              La transcripción aparecerá aquí...
-            </Text>
-          )}
-        </ScrollView>
+        <Animatable.View
+          animation={transcripcion ? "fadeIn" : undefined}
+          duration={600}
+          style={{ width: '100%' }}
+        >
+          <ScrollView style={styles.transcriptionContainer}>
+            {transcripcion ? (
+              <Text style={styles.transcriptionText}>{transcripcion}</Text>
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <MaterialCommunityIcons name="text-box-outline" size={40} color="#ccc" />
+                <Text style={styles.placeholderText}>
+                  La transcripción aparecerá aquí...
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </Animatable.View>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerNote}>
-          Token API: {ASSEMBLYAI_API_KEY ? 'Configurado ✓' : 'No configurado ⚠️'}
-        </Text>
-        <Text style={styles.footerNote}>
-          Permisos: {hasPermission ? 'Concedidos ✓' : 'No concedidos ⚠️'}
-        </Text>
+        <View style={styles.footerItem}>
+          <Ionicons name="key" size={14} color="#1565c0" />
+          <Text style={styles.footerNote}>
+            API: {ASSEMBLYAI_API_KEY ? 'Configurada' : 'No configurada'}
+          </Text>
+        </View>
+        <View style={styles.footerItem}>
+          <Ionicons name="mic" size={14} color="#1565c0" />
+          <Text style={styles.footerNote}>
+            Permisos: {hasPermission ? 'Concedidos' : 'No concedidos'}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -239,9 +265,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#007AFF',
     padding: 20,
     alignItems: 'center',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    marginRight: 8,
   },
   headerText: {
     fontSize: 18,
@@ -250,7 +282,7 @@ const styles = StyleSheet.create({
   },
   modeText: {
     fontSize: 14,
-    color: '#e0f0ff',
+    color: '#e3f2fd',
     marginTop: 5,
   },
   content: {
@@ -259,35 +291,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  micButtonShadow: {
+    borderRadius: 70,
+    shadowColor: '#1e88e5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 12,
+    marginBottom: 20,
+  },
   micButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#007AFF',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  micButtonActive: {
-    backgroundColor: '#ff3b30',
-  },
-  micIcon: {
-    fontSize: 50,
   },
   status: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 30,
+    marginBottom: 40,
     textAlign: 'center',
+    fontWeight: '500',
   },
   transcriptionContainer: {
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 20,
     width: '100%',
     maxHeight: 200,
@@ -298,24 +327,35 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   transcriptionText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#333',
-    lineHeight: 24,
+    lineHeight: 26,
+  },
+  placeholderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
   },
   placeholderText: {
     fontSize: 16,
     color: '#999',
     fontStyle: 'italic',
     textAlign: 'center',
+    marginTop: 10,
   },
   footer: {
     backgroundColor: '#e3f2fd',
     padding: 15,
     alignItems: 'center',
   },
+  footerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   footerNote: {
     fontSize: 12,
     color: '#1565c0',
-    marginBottom: 5,
+    marginLeft: 6,
   },
 });
